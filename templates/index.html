@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extractor de Métricas v6 (Final)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="main-wrapper">
+        <div id="status-message" class="alert" style="display: none;"></div>
+        <div class="form-container">
+            <h1 id="main-title">Registrar Contenido</h1>
+            <form id="metric-form">
+                <div id="form-fields">
+                    <label for="campaign">Nombre de la Campaña:</label>
+                    <input type="text" id="campaign" name="campaign_name" placeholder="Ej: Papá Soltero" required>
+                    
+                    <label for="influencer">Nombre del Influencer:</label>
+                    <input type="text" id="influencer" name="influencer_name" placeholder="Ej: Juan Pérez" required>
+
+                    <label for="platform">Plataforma:</label>
+                    <select id="platform" name="platform" required><option value="" disabled selected>Selecciona una plataforma...</option><option value="Instagram">Instagram</option><option value="Facebook">Facebook</option><option value="TikTok">TikTok</option><option value="YouTube">YouTube</option><option value="X (Twitter)">X (Twitter)</option><option value="Twitch">Twitch</option></select>
+                    
+                    <label for="format">Formato:</label>
+                    <select id="format" name="format" required><option value="" disabled selected>Selecciona un formato...</option><option value="Post">Post</option><option value="Reel">Reel</option><option value="Story">Story</option><option value="Video">Video</option><option value="Short">Short</option><option value="Stream">Stream</option><option value="Tweet">Tweet</option></select>
+
+                    <label for="content_id">Identificador de Contenido (Opcional):</label>
+                    <input type="text" id="content_id" name="content_id" placeholder="Ej: Reel Semana 1">
+                </div>
+                
+                <button type="button" id="prepare-btn" class="cta-button">Preparar Carga para este Contenido</button>
+            </form>
+
+            <div id="upload-section" style="display: none;">
+                <input type="file" id="file-input" multiple accept="image/*" style="display: none;">
+
+                <div id="drop-zone">
+                    <p>Arrastra aquí TODAS las capturas para este contenido</p>
+                    <p class="separator">o</p>
+                    <button type="button" id="browse-btn" class="secondary-button">Selecciona Archivos</button>
+                </div>
+
+                <div id="file-list"></div>
+                <button type="button" id="upload-btn" class="cta-button" style="display: none;">Analizar y Consolidar Métricas</button>
+            </div>
+            
+            <button type="button" id="reset-btn" class="secondary-button" style="display: none;">Registrar Otro Contenido</button>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

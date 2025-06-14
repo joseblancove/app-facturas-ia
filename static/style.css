@@ -1,0 +1,217 @@
+/* static/style.css */
+
+/* --- 1. Importar Fuente y Reseteo Básico --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* --- 2. Paleta de Colores y Variables (inspirada en Famosos.com) --- */
+:root {
+    --background-dark: #10002b; /* Un morado muy oscuro, casi negro */
+    --primary-purple: #4B00F2;
+    --text-light: #f4f4f9;
+    --card-background: #1d1134;
+    --input-background: #2c1a4d;
+    --border-color: #4B00F2;
+}
+
+/* --- 3. Estilos Generales del Body --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-dark);
+    color: var(--text-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+/* --- 4. El Contenedor del Formulario (La "Tarjeta") --- */
+.form-container {
+    background-color: var(--card-background);
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    max-width: 500px;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+}
+
+/* --- 5. Estilos de los Elementos del Formulario --- */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+input[type="text"],
+select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background-color: var(--input-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-light);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+}
+
+input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+input[type="file"] {
+    color: var(--text-light);
+}
+
+/* --- 6. El Botón de Acción (Call to Action) --- */
+button {
+    padding: 1rem;
+    background-color: var(--primary-purple);
+    color: var(--text-light);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #5a1aff;
+    transform: translateY(-2px);
+}
+
+/* Estilos para la página de éxito */
+.success-message a {
+    color: var(--primary-purple);
+    font-weight: 600;
+}
+
+/* --- Estilos para la Alerta de Éxito --- */
+.success-alert {
+    width: 100%;
+    max-width: 500px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: #16a34a; /* Un verde éxito */
+    color: var(--text-light);
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Contenedor principal para alinear la alerta y el formulario */
+.main-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* --- Estilos para Drag & Drop --- */
+#drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 3rem 1rem;
+    margin-top: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#drop-zone p {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+#drop-zone.highlight {
+    background-color: var(--input-background);
+    border-style: solid;
+}
+
+#file-list {
+    margin-top: 1.5rem;
+    width: 100%;
+}
+
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--input-background);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.file-item .status {
+    font-weight: 700;
+}
+
+/* --- Estilos Finales para Carga Múltiple --- */
+.cta-button {
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.file-item .status.pending { color: #a1a1aa; }
+.file-item .status.uploading { color: #f59e0b; }
+.file-item .status.success { color: #22c55e; }
+.file-item .status.error { color: #ef4444; }
+
+.separator {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* --- Estilos para el botón de eliminar archivo --- */
+.file-item {
+    position: relative; /* Necesario para posicionar el botón de eliminar */
+    padding-right: 2.5rem; /* Hacemos espacio para el botón X */
+}
+
+.delete-btn {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    
+    background-color: transparent;
+    border: none;
+    color: #a1a1aa; /* Un gris sutil */
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.delete-btn:hover {
+    color: #ef4444; /* Rojo al pasar el ratón */
+}
