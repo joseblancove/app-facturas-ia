@@ -14,6 +14,8 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
 # --- 1. CONFIGURACIÓN ---
+# Para despliegue en Render, estos se leen del entorno.
+# Para pruebas locales, puedes descomentar y pegar tus llaves aquí.
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 DRIVE_FOLDER_ID = os.environ.get("DRIVE_FOLDER_ID")
 SHEET_ID = os.environ.get("SHEET_ID")
@@ -23,7 +25,7 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 GOOGLE_CREDS_DICT = json.loads(GOOGLE_CREDS_JSON_STRING)
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-WORKSHEET_NAME = 'Master_Data'
+WORKSHEET_NAME = 'Master_Data' # Asegúrate de que este sea el nombre de tu pestaña
 
 # --- 2. INICIALIZACIÓN ---
 app = Flask(__name__)
@@ -36,20 +38,23 @@ def create_drive_folder_and_upload(files_to_upload, folder_name):
     try:
         creds = service_account.Credentials.from_service_account_info(GOOGLE_CREDS_DICT, scopes=SCOPES)
         service = build('drive', 'v3', credentials=creds)
+        
         folder_metadata = {'name': folder_name, 'parents': [DRIVE_FOLDER_ID], 'mimeType': 'application/vnd.google-apps.folder'}
         folder = service.files().create(body=folder_metadata, fields='id, webViewLink').execute()
         new_folder_id = folder.get('id')
         folder_link = folder.get('webViewLink')
+
         for filepath, filename in files_to_upload:
             file_metadata = {'name': filename, 'parents': [new_folder_id]}
             media = MediaFileUpload(filepath, mimetype='image/jpeg', resumable=True)
             service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        
         return folder_link
     except Exception as e:
         print(f"Error al interactuar con Drive: {e}")
         return None
 
-# --- RUTAS ---
+# --- RUTAS DE LA APLICACIÓN ---
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -64,10 +69,12 @@ def upload_file():
         accounting_month = request.form['accounting_month']
         batch_id = request.form.get('batch_id', '')
 
+        # Recibir el LOTE de archivos
         image_files = request.files.getlist('invoice_images[]')
         if not image_files:
-            return jsonify({'status': 'error', 'message': 'No se recibieron archivos.'}), 400
+            return jsonify({'status': 'error', 'message': 'No se recibieron archivos de imagen.'}), 400
 
+        # Preparar las imágenes y el prompt para la IA
         content_for_ai, files_for_drive = [], []
         
         prompt = f"""
@@ -88,18 +95,22 @@ def upload_file():
             files_for_drive.append((filepath, image_file.filename))
             content_for_ai.append(PIL.Image.open(filepath))
             
+        # Llamada única a Gemini
         generation_config = GenerationConfig(response_mime_type="application/json")
         model = genai.GenerativeModel('gemini-1.5-flash-latest', generation_config=generation_config)
         response = model.generate_content(content_for_ai)
         consolidated_metrics = json.loads(response.text)
 
+        # Subir lote a una nueva carpeta de Drive
         folder_name = f"{entity_name} - {project_name} - {batch_id or 'General'}-{datetime.datetime.now().strftime('%Y%m%d')}"
         drive_folder_link = create_drive_folder_and_upload(files_for_drive, folder_name)
 
+        # Guardar la fila única en Google Sheets
         creds_gspread = gspread.service_account_from_dict(GOOGLE_CREDS_DICT)
         workbook = creds_gspread.open_by_key(SHEET_ID)
         sheet = workbook.worksheet(WORKSHEET_NAME)
         
+        # Asegúrate de que tu Google Sheet tenga estas columnas
         new_row = [
             datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             entity_name, project_name, doc_type, accounting_month, batch_id,
