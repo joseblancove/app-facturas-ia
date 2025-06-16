@@ -1,7 +1,7 @@
-// static/app.js - VERSIÓN FINAL REFACTORIZADA
+// static/app.js - v9 (FINAL DEFINITIVA - con envío de datos corregido)
 document.addEventListener('DOMContentLoaded', () => {
-    // Referencias a Elementos del DOM
-    const form = document.getElementById('invoice-form');
+    // --- Referencias a Elementos del DOM ---
+    const form = document.getElementById('metric-form');
     const prepareBtn = document.getElementById('prepare-btn');
     const uploadSection = document.getElementById('upload-section');
     const dropZone = document.getElementById('drop-zone');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let fileQueue = [];
 
-    // --- MANEJO DE EVENTOS ---
+    // --- MANEJO DE DRAG & DROP Y SUBIDA MANUAL ---
     function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => dropZone.addEventListener(eventName, preventDefaults, false));
     ['dragenter', 'dragover'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.add('highlight'), false));
@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.value = '';
     });
 
+    function handleFiles(files) {
+        const newFiles = [...files].filter(file => !fileQueue.some(existing => existing.name === file.name && existing.size === file.size));
+        fileQueue.push(...newFiles);
+        renderFileList();
+    }
+
     fileList.addEventListener('click', (e) => {
         if (e.target && e.target.classList.contains('delete-btn')) {
             const fileIdToRemove = e.target.dataset.fileId;
@@ -36,31 +42,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- LÓGICA DE FLUJO DE TRABAJO ---
     prepareBtn.addEventListener('click', () => {
         if (!form.checkValidity()) { form.reportValidity(); return; }
         enterUploadMode();
     });
     
     uploadBtn.addEventListener('click', () => {
-        if (fileQueue.length === 0) { alert('Por favor, selecciona o arrastra al menos un documento.'); return; }
+        if (fileQueue.length === 0) { alert('Por favor, selecciona o arrastra al menos una captura.'); return; }
         processAndConsolidate();
     });
 
     resetBtn.addEventListener('click', () => resetToInitialState());
 
-    // --- FUNCIONES DE LA INTERFAZ ---
-    function handleFiles(files) {
-        const newFiles = [...files].filter(file => !fileQueue.some(existing => existing.name === file.name && existing.size === file.size));
-        fileQueue.push(...newFiles);
-        renderFileList();
-    }
-
+    // --- FUNCIONES DE ESTADO DE LA UI ---
     function enterUploadMode() {
         Array.from(form.elements).forEach(el => {
             if(el.tagName === 'INPUT' || el.tagName === 'SELECT') { el.disabled = true; }
         });
         prepareBtn.style.display = 'none';
-        mainTitle.textContent = `Cargando para: ${document.getElementById('entity_name').value}`;
+        mainTitle.textContent = `Cargando para: ${document.getElementById('campaign').value}`;
         uploadSection.style.display = 'block';
     }
 
@@ -73,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadSection.style.display = 'none';
         resetBtn.style.display = 'none';
         statusMessage.style.display = 'none';
-        mainTitle.textContent = 'Registrar Lote de Documentos';
+        mainTitle.textContent = 'Registrar Contenido';
     }
 
     function renderFileList() {
@@ -89,24 +90,27 @@ document.addEventListener('DOMContentLoaded', () => {
         else uploadBtn.style.display = 'none';
     }
 
+    // --- FUNCIÓN PRINCIPAL DE PROCESAMIENTO ---
     async function processAndConsolidate() {
         uploadBtn.disabled = true;
         uploadBtn.textContent = 'Analizando y Consolidando...';
-        statusMessage.textContent = `Enviando ${fileQueue.length} documentos a la IA...`;
+        statusMessage.textContent = `Enviando ${fileQueue.length} imágenes a la IA...`;
         statusMessage.className = 'alert info-alert';
         statusMessage.style.display = 'block';
 
+        // --- ¡CORRECCIÓN FINAL! ---
+        // Creamos un FormData vacío y añadimos TODOS los campos manualmente.
         const formData = new FormData();
-        // Nombres de campos actualizados para la lógica de facturas
-        formData.append('entity_name', document.getElementById('entity_name').value);
-        formData.append('project_name', document.getElementById('project_name').value);
-        formData.append('doc_type', document.getElementById('doc_type').value);
-        formData.append('accounting_month', document.getElementById('accounting_month').value);
-        formData.append('batch_id', document.getElementById('batch_id').value);
+        formData.append('campaign_name', document.getElementById('campaign').value);
+        formData.append('influencer_name', document.getElementById('influencer').value);
+        formData.append('platform', document.getElementById('platform').value);
+        formData.append('format', document.getElementById('format').value);
+        formData.append('organic_paid', document.getElementById('organic_paid').value);
+        formData.append('content_id', document.getElementById('content_id').value);
         
+        // Ahora añadimos todas las imágenes al mismo paquete
         fileQueue.forEach(file => {
-            // Nombre del campo de archivo actualizado
-            formData.append('invoice_images[]', file, file.name);
+            formData.append('metric_images[]', file, file.name);
         });
 
         try {
@@ -124,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             statusMessage.textContent = `Error: ${error.message}`;
             statusMessage.className = 'alert error-alert';
             uploadBtn.disabled = false;
-            uploadBtn.textContent = 'Analizar y Consolidar';
+            uploadBtn.textContent = 'Analizar y Consolidar Métricas';
         }
     }
 });

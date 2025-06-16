@@ -24,7 +24,14 @@
                     
                     <label for="format">Formato:</label>
                     <select id="format" name="format" required><option value="" disabled selected>Selecciona un formato...</option><option value="Post">Post</option><option value="Reel">Reel</option><option value="Story">Story</option><option value="Video">Video</option><option value="Short">Short</option><option value="Stream">Stream</option><option value="Tweet">Tweet</option></select>
-
+                    
+                    <div class="form-group">
+                        <label for="organic_paid">Tipo de Contenido:</label>
+                        <select id="organic_paid" name="organic_paid" class="form-control" required>
+                            <option value="Organic">Organic</option>
+                            <option value="Paid">Paid</option>
+                        </select>
+                    </div>
                     <label for="content_id">Identificador de Contenido (Opcional):</label>
                     <input type="text" id="content_id" name="content_id" placeholder="Ej: Reel Semana 1">
                 </div>
